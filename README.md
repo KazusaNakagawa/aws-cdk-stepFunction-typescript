@@ -14,9 +14,8 @@ aws s3 cp ./test/fixtures/test.tsv.gz s3://torikomi-in
 ## layer
 
 ```bash
-
-mkdir -p python/lib/python3.12/site-packages
-cd python/lib/python3.12/site-packages
+mkdir -p layer/python/lib/python3.12/site-packages
+cd layer/python/lib/python3.12/site-packages
 
 pip install requests -t .
 
