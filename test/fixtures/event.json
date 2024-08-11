@@ -1,0 +1,14 @@
+{
+  "Records": [
+    {
+      "s3": {
+        "bucket": {
+          "name": "torikomi-in"
+        },
+        "object": {
+          "key": "test.tsv.gz"
+        }
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import gzip
 import boto3
 import os
 import logging
-from botocore.exceptions import ClientError
+# from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -24,9 +24,8 @@ def main(event, context):
     try:
         for record in event['Records']:
             # SQSメッセージの処理
-            body = json.loads(record['body'])
-            s3_bucket = body['Records'][0]['s3']['bucket']['name']
-            s3_key = body['Records'][0]['s3']['object']['key']
+            s3_bucket = record['s3']['bucket']['name']
+            s3_key = record['s3']['object']['key']
 
             try:
                 # S3から.gzファイルをダウンロード
@@ -40,26 +39,26 @@ def main(event, context):
                         f_out.write(f_in.read())
 
                 # Redshiftへのデータインサート
-                with open(extracted_file_path, 'r') as f:
-                    for line in f:
-                        name, email, age = line.strip().split('\t')
-                        sql = f"INSERT INTO your_table_name (name, email, age) VALUES ('{name}', '{email}', {age})"
-                        response = redshift_data_client.execute_statement(
-                            ClusterIdentifier=REDSHIFT_CLUSTER,
-                            Database=REDSHIFT_DATABASE,
-                            DbUser=REDSHIFT_USER,
-                            Sql=sql
-                        )
+                # with open(extracted_file_path, 'r') as f:
+                #     for line in f:
+                #         name, email, age = line.strip().split('\t')
+                #         sql = f"INSERT INTO your_table_name (name, email, age) VALUES ('{name}', '{email}', {age})"
+                #         response = redshift_data_client.execute_statement(
+                #             ClusterIdentifier=REDSHIFT_CLUSTER,
+                #             Database=REDSHIFT_DATABASE,
+                #             DbUser=REDSHIFT_USER,
+                #             Sql=sql
+                #         )
 
                 # 成功した場合、ファイルを別のS3バケットにコピー
                 s3_client.upload_file(extracted_file_path, S3_OUT_BUCKET, os.path.basename(extracted_file_path))
 
                 # 処理完了通知
-                sns_client.publish(
-                    TopicArn='your-sns-topic-arn',
-                    Message='Data processing completed successfully',
-                    Subject='Processing Complete'
-                )
+                # sns_client.publish(
+                #     TopicArn='your-sns-topic-arn',
+                #     Message='Data processing completed successfully',
+                #     Subject='Processing Complete'
+                # )
             except Exception as e:
                 logger.error(f"Error processing file {s3_key}: {str(e)}")
                 # Slackにエラー通知
